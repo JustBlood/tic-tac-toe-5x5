@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: tic-tac-toe-5x5
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: admin
+    url: jdbc:postgresql://localhost:5432/tic-tac-toe
+  jpa:
+    hibernate:
+      ddl-auto: update
+logging:
+  level:
+    org.springframework: DEBUG
