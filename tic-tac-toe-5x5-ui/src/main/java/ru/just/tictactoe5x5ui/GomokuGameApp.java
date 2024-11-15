@@ -7,9 +7,11 @@ import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.BorderPane;
@@ -73,32 +75,32 @@ public class GomokuGameApp extends Application {
     }
 
     private UUID loadOrGenerateUserId() {
-//        try {
+        try {
+            File file = new File("user-id.txt");
+            if (file.exists()) {
+                String id = new String(Files.readAllBytes(file.toPath()));
+                return UUID.fromString(id);
+            } else {
+                UUID newId = UUID.randomUUID();
+                Files.write(Paths.get("user-id.txt"), newId.toString().getBytes());
+                return newId;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
             return UUID.randomUUID();
-            // FIXME: раскомментировать
-//            File file = new File("user-id.txt");
-//            if (file.exists()) {
-//                String id = new String(Files.readAllBytes(file.toPath()));
-//                return UUID.fromString(id);
-//            } else {
-//                UUID newId = UUID.randomUUID();
-//                Files.write(Paths.get("user-id.txt"), newId.toString().getBytes());
-//                return newId;
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return UUID.randomUUID();
-//        }
+        }
     }
 
     private void setupUI(Stage primaryStage) {
         BorderPane mainLayout = new BorderPane();
+        mainLayout.getStyleClass().add("main-layout");
         GridPane gridPane = new GridPane();
+        gridPane.setPadding(new Insets(20));
 
         for (int row = 0; row < 15; row++) {
             for (int col = 0; col < 15; col++) {
                 Button cell = new Button();
-                cell.setMinSize(40, 40);
+                cell.getStyleClass().add("cell-button");
                 int finalRow = row;
                 int finalCol = col;
                 cell.setOnAction(event -> handleCellClick(finalRow, finalCol));
@@ -108,23 +110,30 @@ public class GomokuGameApp extends Application {
         }
 
         Button createRoomButton = new Button("Создать комнату");
+        createRoomButton.getStyleClass().add("normal-button");
         createRoomButton.setOnAction(event -> createGameRoom());
 
         // Кнопка копирования UUID комнаты
         copyRoomButton = new Button("Копировать UUID комнаты");
+        copyRoomButton.getStyleClass().add("normal-button");
         copyRoomButton.setOnAction(event -> copyRoomIdToClipboard());
         copyRoomButton.setDisable(true); // По умолчанию отключена, пока комната не создана
 
         Button joinRoomButton = new Button("Присоединиться к игре");
+        joinRoomButton.getStyleClass().add("normal-button");
         joinRoomButton.setOnAction(event -> showJoinGameDialog());
 
         HBox topButtons = new HBox(10, createRoomButton, copyRoomButton, joinRoomButton);
         topButtons.setAlignment(Pos.CENTER);
+        topButtons.setPadding(new Insets(20));
         mainLayout.setTop(topButtons);
         mainLayout.setCenter(gridPane);
 
-        primaryStage.setScene(new Scene(mainLayout, 600, 630));
+        Scene scene = new Scene(mainLayout, 640, 710);
+        scene.getStylesheets().add("styles.css");
+        primaryStage.setScene(scene);
         primaryStage.setTitle("Гомоку");
+        primaryStage.getIcons().add(new Image("file:src/main/resources/icon.png"));
         primaryStage.setResizable(false);
         primaryStage.show();
     }
@@ -162,27 +171,35 @@ public class GomokuGameApp extends Application {
         TextField uuidField = new TextField();
         uuidField.setPromptText("Введите UUID комнаты");
 
-        Button joinButton = new Button("Присоединиться");
-        joinButton.setOnAction(e -> {
-            if (stompSession != null) stompSession.disconnect();
-            eraseTextOnButtons();
-            String uuid = uuidField.getText();
-            if (!joinGame(uuid)) {
-                Dialog<String> errorDialog = new Dialog<>();
-                errorDialog.setTitle("Ошибка");
-                Text text = new Text("Комнаты не существует");
-                VBox pane = new VBox(text);
-                errorDialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL); // добавляем кнопку отмены
-                errorDialog.getDialogPane().setContent(pane);
-                errorDialog.showAndWait();
-            }
-            System.out.println("Присоединился к комнате с UUID: " + uuid);
-            dialog.close();
-        });
-        dialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL); // добавляем кнопку отмены
+        ButtonType joinButtonType = new ButtonType("Присоединиться", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelButtonType = new ButtonType("Отмена", ButtonBar.ButtonData.CANCEL_CLOSE);
+        dialog.getDialogPane().getButtonTypes().addAll(joinButtonType, cancelButtonType);
 
-        VBox dialogPane = new VBox(uuidField, joinButton);
-        dialog.getDialogPane().setContent(dialogPane);
+        // Обработчик нажатия кнопки "Присоединиться"
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == joinButtonType) {
+                if (stompSession != null) stompSession.disconnect();
+                eraseTextOnButtons();
+                String uuid = uuidField.getText();
+                if (!joinGame(uuid)) {
+                    String content = "Комнаты не существует";
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Ошибка");
+                    alert.setHeaderText(null);
+                    alert.setContentText(content);
+                    alert.getDialogPane().getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+                    alert.getDialogPane().getStyleClass().add("alert");
+                    alert.showAndWait();
+                }
+                System.out.println("Присоединился к комнате с UUID: " + uuid);
+                dialog.close();
+            }
+            return null;
+        });
+
+        dialog.getDialogPane().setContent(new VBox(uuidField));
+        dialog.getDialogPane().getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+        dialog.getDialogPane().getStyleClass().add("dialog");
         dialog.showAndWait();
     }
 
@@ -302,11 +319,12 @@ public class GomokuGameApp extends Application {
     private void showWinnerAlert(UUID winnerId) {
         Platform.runLater(() -> {
             String content = winnerId.equals(userId) ? "Вы победили!" : "Вы проиграли!";
-
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Конец игры!");
             alert.setHeaderText(null);
             alert.setContentText(content);
+            alert.getDialogPane().getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+            alert.getDialogPane().getStyleClass().add("alert");
             alert.showAndWait();
         });
     }
