@@ -15,4 +15,6 @@ public class GameRoomDto {
     private UUID id;
     private UUID ownerId;
     private String gameState;
+    private UUID xOwnerId;
+    private UUID lastPickedPlayerId;
 }

@@ -2,6 +2,15 @@
 .main-layout {
     -fx-background-color: #1B2838;
     -fx-border-color: #D1D5DB; /* Цвет границы */
+    -fx-text-fill: #D1D5DB;
+}
+
+.title-label {
+    -fx-font-size: 30px;
+}
+
+.scroll .viewport{
+    -fx-background-color: #1B2838;
 }
 
 /* Кнопки-ячейки для игры */
@@ -10,21 +19,20 @@
     -fx-min-height: 40; /* Минимальная высота кнопок */
     -fx-background-color: #121C28; /* Цвет фона кнопки */
     -fx-text-fill: #D1D5DB; /* Цвет текста кнопки */
-    /*-fx-border-color: #D1D5DB;  Цвет границы кнопки */
     -fx-border-color: #858F9E;
     -fx-border-width: 1; /* Ширина границы */
     -fx-background-insets: 0; /* Убираем внутренние отступы */
     -fx-effect: null; /* Убираем тени и эффекты */
-    -fx-font-size: 14px; /* Размер шрифта (по желанию) */
-    -fx-padding: 10; /* Отступы внутри кнопки (по желанию) */
+    -fx-font-size: 14px; /* Размер шрифта */
+    -fx-padding: 10; /* Отступы внутри кнопки */
 }
 
 .cell-button:hover {
-    -fx-background-color: #1A2535; /* Цвет фона при наведении (по желанию) */
+    -fx-background-color: #1A2535; /* Цвет фона при наведении */
 }
 
-.cell-button:pressed {
-    -fx-background-color: #0F1722; /* Цвет фона при нажатии (по желанию) */
+.cell-button:pressed, .normal-button:hover, .dialog .button:hover, .alert .button:hover {
+    -fx-background-color: #0F1722; /* Цвет фона при нажатии */
 }
 
 /* Обычные кнопки */
@@ -36,6 +44,14 @@
     -fx-background-radius: 5; /* Закругление фона */
     -fx-padding: 10 20; /* Отступы внутри кнопки */
     -fx-effect: null; /* Убираем тени */
+}
+
+.normal-button:hover, .dialog .button:hover, .alert .button:hover{
+    -fx-background-color: #121C28;
+}
+
+.normal-button:pressed, .dialog .button:pressed, .alert .button:pressed{
+    -fx-background-color: #0F1722;
 }
 
 /* Информационные окна */
@@ -50,7 +66,7 @@
     -fx-text-fill: #D1D5DB; /* Цвет текста заголовка */
 }
 
-.alert .content {
+.alert .content, .title-label, .info-label  {
     -fx-text-fill: #D1D5DB; /* Цвет текста содержимого */
 }
 
@@ -63,7 +79,7 @@
     -fx-border-color: #D1D5DB; /* Цвет границы */
 }
 
-.dialog .text{
+.dialog .text {
     -fx-text-fill: #D1D5DB;
 }
 

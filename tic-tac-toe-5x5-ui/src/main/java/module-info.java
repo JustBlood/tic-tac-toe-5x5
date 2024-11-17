@@ -12,6 +12,7 @@ module ru.just.tictactoe5x5ui {
     requires org.apache.tomcat.embed.websocket;
     // Модуль Jackson для работы с JSON
     requires com.fasterxml.jackson.databind;
+    requires spring.core;
 
     opens ru.just.tictactoe5x5ui to javafx.fxml;
     exports ru.just.tictactoe5x5ui;

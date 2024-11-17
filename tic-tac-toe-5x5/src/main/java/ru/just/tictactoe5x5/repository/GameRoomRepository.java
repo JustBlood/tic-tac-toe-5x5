@@ -8,4 +8,6 @@ import java.util.UUID;
 
 public interface GameRoomRepository extends JpaRepository<GameRoom, UUID> {
     List<GameRoom> findAllByOwnerId(UUID ownerId);
+
+    List<GameRoom> findByOwnerIdOrSecondPlayerId(UUID userId1, UUID userId2);
 }
