@@ -49,8 +49,19 @@ import java.util.concurrent.ExecutionException;
 
 public class GomokuGameApp extends Application {
 
-    private static final String URL_WS = "ws://localhost:8080/ws";
-    private static final String URL_REST = "http://localhost:8080/api/v1/tic-tac-toe-5x5";
+    private final String URL_WS;
+    private final String URL_REST;
+
+    {
+        String host = "localhost";
+        try (var hostnameFile = GomokuGameApp.class.getClassLoader().getResource("hostname").openStream()) {
+            host = new String(hostnameFile.readAllBytes());
+        } catch (Exception e) {
+            System.out.println("Ошибка при парсинге файла hostname");
+        }
+        URL_WS = "ws://" + host + ":8080/ws";
+        URL_REST = "http://" + host + ":8080/api/v1/tic-tac-toe-5x5";
+    }
 
     private StompSession stompSession;
     private UUID roomId;
