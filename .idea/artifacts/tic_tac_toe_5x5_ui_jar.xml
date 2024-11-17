@@ -1,0 +1,33 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="tic-tac-toe-5x5-ui:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/tic_tac_toe_5x5_ui_jar</output-path>
+    <root id="archive" name="tic-tac-toe-5x5-ui.jar">
+      <element id="module-output" name="tic-tac-toe-5x5-ui" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/apache/tomcat/tomcat-annotations-api/10.1.24/tomcat-annotations-api-10.1.24.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/apache/tomcat/embed/tomcat-embed-core/10.1.24/tomcat-embed-core-10.1.24.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/springframework/spring-jcl/5.3.15/spring-jcl-5.3.15.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.34/lombok-1.18.34.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/apache/tomcat/embed/tomcat-embed-websocket/10.1.24/tomcat-embed-websocket-10.1.24.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/fasterxml/jackson/core/jackson-annotations/2.14.0/jackson-annotations-2.14.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-base/17.0.6/javafx-base-17.0.6-win.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-controls/17.0.6/javafx-controls-17.0.6-win.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/springframework/spring-websocket/5.3.15/spring-websocket-5.3.15.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/springframework/spring-web/5.3.15/spring-web-5.3.15.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-fxml/17.0.6/javafx-fxml-17.0.6-win.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-fxml/17.0.6/javafx-fxml-17.0.6.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-graphics/17.0.6/javafx-graphics-17.0.6-win.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/springframework/spring-aop/5.3.15/spring-aop-5.3.15.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-base/17.0.6/javafx-base-17.0.6.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/springframework/spring-core/5.3.15/spring-core-5.3.15.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/fasterxml/jackson/core/jackson-databind/2.14.0/jackson-databind-2.14.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/fasterxml/jackson/core/jackson-core/2.14.0/jackson-core-2.14.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-graphics/17.0.6/javafx-graphics-17.0.6.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/springframework/spring-messaging/5.3.15/spring-messaging-5.3.15.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-controls/17.0.6/javafx-controls-17.0.6.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/springframework/spring-context/5.3.15/spring-context-5.3.15.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/springframework/spring-beans/5.3.15/spring-beans-5.3.15.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/springframework/spring-expression/5.3.15/spring-expression-5.3.15.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/jakarta/websocket/jakarta.websocket-api/2.0.0/jakarta.websocket-api-2.0.0.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

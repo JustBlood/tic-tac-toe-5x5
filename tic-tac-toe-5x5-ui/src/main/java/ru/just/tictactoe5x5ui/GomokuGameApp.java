@@ -53,7 +53,7 @@ public class GomokuGameApp extends Application {
     {
         String host = "localhost";
         try (var hostnameFile = GomokuGameApp.class.getClassLoader().getResource("hostname").openStream()) {
-            host = new String(hostnameFile.readAllBytes());
+            host = new String(hostnameFile.readAllBytes()).strip();
         } catch (Exception e) {
             System.out.println("Ошибка при парсинге файла hostname");
         }
@@ -71,10 +71,6 @@ public class GomokuGameApp extends Application {
     private Stage primaryStage;
     private Scene startScene;
     private Scene gameScene;
-
-    public static void main(String[] args) {
-        launch(args);
-    }
 
     @Override
     public void start(Stage primaryStage) {
