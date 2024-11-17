@@ -144,6 +144,15 @@ public class GameService {
     }
 
     public Optional<GameRoomDto> findRoomById(UUID roomId) {
-        return gameRoomRepository.findById(roomId).map(gr -> new GameRoomDto(gr.getId(), gr.getOwnerId(), gr.getGameState()));
+        return gameRoomRepository.findById(roomId).map(gr -> new GameRoomDto(gr.getId(), gr.getOwnerId(), gr.getGameState(), gr.getXOwner(), gr.getLastPickedPlayerId()));
+    }
+
+    public Optional<List<UUID>> findUnfinishedGames(UUID userId) {
+        return Optional.of(
+                gameRoomRepository.findByOwnerIdOrSecondPlayerId(userId, userId).stream()
+                        .filter(gr -> gr.getWinnerId() == null)
+                        .map(GameRoom::getId)
+                        .collect(Collectors.toList())
+        );
     }
 }

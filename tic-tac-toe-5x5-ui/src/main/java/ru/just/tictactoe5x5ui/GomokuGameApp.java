@@ -1,22 +1,21 @@
 package ru.just.tictactoe5x5ui;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -43,7 +42,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
@@ -66,12 +64,13 @@ public class GomokuGameApp extends Application {
     private StompSession stompSession;
     private UUID roomId;
     private UUID userId;
-    private UUID ownerId;
     private char currentPlayerSymbol;
     private Button[][] boardButtons = new Button[15][15];
-    private Button copyRoomButton;
     private RestTemplate restTemplate = new RestTemplate();
     private ObjectMapper objectMapper = new ObjectMapper();
+    private Stage primaryStage;
+    private Scene startScene;
+    private Scene gameScene;
 
     public static void main(String[] args) {
         launch(args);
@@ -80,36 +79,102 @@ public class GomokuGameApp extends Application {
     @Override
     public void start(Stage primaryStage) {
         userId = loadOrGenerateUserId();
-        setupUI(primaryStage);
+        this.primaryStage = primaryStage;
+        setupStartScene();
+        primaryStage.setScene(startScene);
+        primaryStage.setTitle("Гомоку");
+        primaryStage.getIcons().add(new Image("file:src/main/resources/icon.png"));
+        primaryStage.setResizable(false);
+        primaryStage.show();
     }
 
     private UUID loadOrGenerateUserId() {
-//        try {
+        try {
+            File file = new File("user-id.txt");
+            if (file.exists()) {
+                String id = new String(Files.readAllBytes(file.toPath()));
+                return UUID.fromString(id);
+            } else {
+                UUID newId = UUID.randomUUID();
+                Files.write(Paths.get("user-id.txt"), newId.toString().getBytes());
+                return newId;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
             return UUID.randomUUID();
-            // FIXME: раскомментировать
-//            File file = new File("user-id.txt");
-//            if (file.exists()) {
-//                String id = new String(Files.readAllBytes(file.toPath()));
-//                return UUID.fromString(id);
-//            } else {
-//                UUID newId = UUID.randomUUID();
-//                Files.write(Paths.get("user-id.txt"), newId.toString().getBytes());
-//                return newId;
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return UUID.randomUUID();
-//        }
+        }
     }
 
-    private void setupUI(Stage primaryStage) {
+    private void setupStartScene() {
+        VBox gamesBox = new VBox(10); // Отступы между кнопками
+        gamesBox.setPadding(new Insets(20));
+
+        List<?> unfinishedGames;
+        ResponseEntity<List> response = restTemplate.getForEntity(URL_REST + "/users/" + userId + "/unfinished", List.class);
+        if (response.getStatusCode().is2xxSuccessful()) {
+            unfinishedGames = response.getBody();
+            // Создаем кнопки для каждой незаконченной игры
+            for (var gameId : unfinishedGames) {
+                Button gameButton = new Button(gameId.toString());
+                gameButton.setOnAction(event -> continueGame(UUID.fromString(gameId.toString()))); // Обработчик нажатия
+                gameButton.getStyleClass().add("normal-button");
+                gamesBox.getChildren().add(gameButton); // Добавляем кнопку в VBox
+            }
+        }
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setContent(gamesBox);
+        scrollPane.setFitToWidth(true);
+        scrollPane.getStyleClass().add("scroll");
+
+
+        VBox layout = new VBox(20);
+        layout.setPadding(new Insets(20));
+        layout.setAlignment(Pos.CENTER);
+        layout.getStyleClass().add("main-layout");
+
+        Label titleLabel = new Label("Добро пожаловать в Гомоку!");
+        Label infoLabel1 = new Label("Вы можете начать новую игру:");
+        Label infoLabel2 = new Label("Или продолжить незаконченную игру из списка ниже:");
+        Label infoLabel3 = new Label("У вас пока нет незаконченных игр");
+        Button newGameButton = new Button("Создать новую игру");
+        Button joinRoomButton = new Button("Присоединиться к игре");
+
+        newGameButton.setOnAction(event -> startNewGame());
+        joinRoomButton.setOnAction(event -> showJoinGameDialog());
+
+        titleLabel.getStyleClass().add("title-label");
+        infoLabel1.getStyleClass().add("info-label");
+        infoLabel2.getStyleClass().add("info-label");
+        infoLabel3.getStyleClass().add("info-label");
+        newGameButton.getStyleClass().add("normal-button");
+        joinRoomButton.getStyleClass().add("normal-button");
+
+        HBox newGameButtons = new HBox(10);
+        newGameButtons.setAlignment(Pos.CENTER);
+        newGameButtons.getChildren().addAll(newGameButton, joinRoomButton);
+
+        layout.getChildren().addAll(titleLabel, infoLabel1, newGameButtons, infoLabel2, gamesBox.getChildren().isEmpty() ? infoLabel3 : scrollPane);
+
+        startScene = new Scene(layout, 640, 710);
+        startScene.getStylesheets().add("styles.css");
+    }
+
+    private void startNewGame() {
+        createGameRoom();
+        setupGameScene();
+        primaryStage.setScene(gameScene);
+    }
+
+    private void setupGameScene() {
         BorderPane mainLayout = new BorderPane();
+        mainLayout.getStyleClass().add("main-layout");
         GridPane gridPane = new GridPane();
+        gridPane.setPadding(new Insets(20));
 
         for (int row = 0; row < 15; row++) {
             for (int col = 0; col < 15; col++) {
                 Button cell = new Button();
-                cell.setMinSize(40, 40);
+                cell.getStyleClass().add("cell-button");
                 int finalRow = row;
                 int finalCol = col;
                 cell.setOnAction(event -> handleCellClick(finalRow, finalCol));
@@ -118,36 +183,74 @@ public class GomokuGameApp extends Application {
             }
         }
 
-        Button createRoomButton = new Button("Создать комнату");
-        createRoomButton.setOnAction(event -> createGameRoom());
+        Button saveAndExitButton = new Button("Сохранить и выйти");
+        saveAndExitButton.getStyleClass().add("normal-button");
+        saveAndExitButton.setOnAction(event -> returnToStartScene());
 
-        // Кнопка копирования UUID комнаты
-        copyRoomButton = new Button("Копировать UUID комнаты");
+        Button copyRoomButton = new Button("Копировать UUID комнаты");
+        copyRoomButton.getStyleClass().add("normal-button");
         copyRoomButton.setOnAction(event -> copyRoomIdToClipboard());
-        copyRoomButton.setDisable(true); // По умолчанию отключена, пока комната не создана
 
-        Button joinRoomButton = new Button("Присоединиться к игре");
-        joinRoomButton.setOnAction(event -> showJoinGameDialog());
-
-        HBox topButtons = new HBox(10, createRoomButton, copyRoomButton, joinRoomButton);
+        HBox topButtons = new HBox(10, copyRoomButton, saveAndExitButton);
         topButtons.setAlignment(Pos.CENTER);
+        topButtons.setPadding(new Insets(20));
         mainLayout.setTop(topButtons);
         mainLayout.setCenter(gridPane);
 
-        primaryStage.setScene(new Scene(mainLayout, 600, 630));
-        primaryStage.setTitle("Гомоку");
-        primaryStage.setResizable(false);
-        primaryStage.show();
+        gameScene = new Scene(mainLayout, 640, 710);
+        gameScene.getStylesheets().add("styles.css");
+    }
+
+    private void returnToStartScene() {
+        setupStartScene();
+        primaryStage.setScene(startScene);
+        if (stompSession != null) {
+            stompSession.disconnect();
+            stompSession = null;
+        }
+    }
+
+    private boolean continueGame(UUID uuid){
+        roomId = uuid;
+        GameRoomDto gameRoomDto;
+
+        try {
+            gameRoomDto = restTemplate.getForObject(URL_REST + "/rooms/" + roomId, GameRoomDto.class);
+            if (gameRoomDto == null) return false;
+        } catch (HttpClientErrorException e) {
+            return false;
+        }
+
+        if(userId.equals(gameRoomDto.xOwnerId)) currentPlayerSymbol = 'X';
+        else currentPlayerSymbol = 'O';
+
+        if(userId.equals(gameRoomDto.lastPickedPlayerId)) {
+            onTurnChanged(false);
+        }
+
+        setupWebSocket();
+        setupGameScene();
+        primaryStage.setScene(gameScene);
+
+        try {
+            char[][] gameState = objectMapper.readValue(gameRoomDto.gameState, new TypeReference<>() {});
+            for (int i = 0; i < boardButtons.length; i++) {
+                for (int j = 0; j < boardButtons[i].length; j++) {
+                    boardButtons[i][j].setText(String.valueOf(gameState[i][j]));
+                }
+            }
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        return true;
     }
 
     private void createGameRoom() {
         if (stompSession != null) stompSession.disconnect();
-        eraseTextOnButtons();
         ResponseEntity<UUID> response = restTemplate.postForEntity(URL_REST + "?userId=" + userId, null, UUID.class);
         roomId = response.getBody();
-        copyRoomButton.setDisable(false);
         System.out.println("Комната создана: " + roomId);
-
         setupWebSocket();
     }
 
@@ -159,13 +262,6 @@ public class GomokuGameApp extends Application {
         System.out.println("UUID комнаты скопирован в буфер обмена: " + roomId);
     }
 
-    private void eraseTextOnButtons() {
-        Arrays.stream(boardButtons).flatMap(Arrays::stream).forEach(button -> {
-            button.setDisable(false);
-            button.setText("");
-        });
-    }
-
     private void showJoinGameDialog() {
         Dialog<String> dialog = new Dialog<>();
         dialog.setTitle("Ввод UUID комнаты");
@@ -173,27 +269,37 @@ public class GomokuGameApp extends Application {
         TextField uuidField = new TextField();
         uuidField.setPromptText("Введите UUID комнаты");
 
-        Button joinButton = new Button("Присоединиться");
-        joinButton.setOnAction(e -> {
-            if (stompSession != null) stompSession.disconnect();
-            eraseTextOnButtons();
-            String uuid = uuidField.getText();
-            if (!joinGame(uuid)) {
-                Dialog<String> errorDialog = new Dialog<>();
-                errorDialog.setTitle("Ошибка");
-                Text text = new Text("Комнаты не существует");
-                VBox pane = new VBox(text);
-                errorDialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL); // добавляем кнопку отмены
-                errorDialog.getDialogPane().setContent(pane);
-                errorDialog.showAndWait();
-            }
-            System.out.println("Присоединился к комнате с UUID: " + uuid);
-            dialog.close();
-        });
-        dialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL); // добавляем кнопку отмены
+        ButtonType joinButtonType = new ButtonType("Присоединиться", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelButtonType = new ButtonType("Отмена", ButtonBar.ButtonData.CANCEL_CLOSE);
+        dialog.getDialogPane().getButtonTypes().addAll(joinButtonType, cancelButtonType);
 
-        VBox dialogPane = new VBox(uuidField, joinButton);
-        dialog.getDialogPane().setContent(dialogPane);
+        // Обработчик нажатия кнопки "Присоединиться"
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == joinButtonType) {
+                if (stompSession != null) stompSession.disconnect();
+                //eraseTextOnButtons();
+                String uuid = uuidField.getText();
+                if (!joinGame(uuid)) {
+                    String content = "Комнаты не существует";
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Ошибка");
+                    alert.setHeaderText(null);
+                    alert.setContentText(content);
+                    alert.getDialogPane().getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+                    alert.getDialogPane().getStyleClass().add("alert");
+                    alert.showAndWait();
+                }
+                System.out.println("Присоединился к комнате с UUID: " + uuid);
+                setupGameScene();
+                primaryStage.setScene(gameScene);
+                dialog.close();
+            }
+            return null;
+        });
+
+        dialog.getDialogPane().setContent(new VBox(uuidField));
+        dialog.getDialogPane().getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+        dialog.getDialogPane().getStyleClass().add("dialog");
         dialog.showAndWait();
     }
 
@@ -207,24 +313,11 @@ public class GomokuGameApp extends Application {
             return false;
         }
 
-        ownerId = gameRoomDto.ownerId;
-
         setupWebSocket();
 
         StartGameDto startGameDto = new StartGameDto(userId);
         HttpEntity<StartGameDto> request = new HttpEntity<>(startGameDto);
         restTemplate.postForEntity(URL_REST + "/rooms/" + roomId, request, Void.class);
-
-        try {
-            char[][] gameState = objectMapper.readValue(gameRoomDto.gameState, new TypeReference<>() {});
-            for (int i = 0; i < boardButtons.length; i++) {
-                for (int j = 0; j < boardButtons[i].length; j++) {
-                    boardButtons[i][j].setText(String.valueOf(gameState[i][j]));
-                }
-            }
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
         return true;
     }
 
@@ -298,11 +391,9 @@ public class GomokuGameApp extends Application {
 
     // Примерный метод обновления состояния кнопок в зависимости от текущего хода
     private void updateButtonStates(boolean isPlayerTurn) {
-        Platform.runLater(() -> {
-            Arrays.stream(boardButtons)
-                    .flatMap(Arrays::stream)
-                    .forEach(button -> button.setDisable(!isPlayerTurn));
-        });
+        Platform.runLater(() -> Arrays.stream(boardButtons)
+                .flatMap(Arrays::stream)
+                .forEach(button -> button.setDisable(!isPlayerTurn)));
     }
 
     // Вызов метода при каждом изменении состояния игры
@@ -313,12 +404,14 @@ public class GomokuGameApp extends Application {
     private void showWinnerAlert(UUID winnerId) {
         Platform.runLater(() -> {
             String content = winnerId.equals(userId) ? "Вы победили!" : "Вы проиграли!";
-
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Конец игры!");
             alert.setHeaderText(null);
             alert.setContentText(content);
+            alert.getDialogPane().getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+            alert.getDialogPane().getStyleClass().add("alert");
             alert.showAndWait();
+            returnToStartScene();
         });
     }
 
@@ -359,5 +452,7 @@ public class GomokuGameApp extends Application {
         private UUID id;
         private UUID ownerId;
         private String gameState;
+        private UUID xOwnerId;
+        private UUID lastPickedPlayerId;
     }
 }

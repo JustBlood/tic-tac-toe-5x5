@@ -1,0 +1,98 @@
+/* Основной шаблон */
+.main-layout {
+    -fx-background-color: #1B2838;
+    -fx-border-color: #D1D5DB; /* Цвет границы */
+    -fx-text-fill: #D1D5DB;
+}
+
+.title-label {
+    -fx-font-size: 30px;
+}
+
+.scroll .viewport{
+    -fx-background-color: #1B2838;
+}
+
+/* Кнопки-ячейки для игры */
+.cell-button {
+    -fx-min-width: 40; /* Минимальная ширина кнопок */
+    -fx-min-height: 40; /* Минимальная высота кнопок */
+    -fx-background-color: #121C28; /* Цвет фона кнопки */
+    -fx-text-fill: #D1D5DB; /* Цвет текста кнопки */
+    -fx-border-color: #858F9E;
+    -fx-border-width: 1; /* Ширина границы */
+    -fx-background-insets: 0; /* Убираем внутренние отступы */
+    -fx-effect: null; /* Убираем тени и эффекты */
+    -fx-font-size: 14px; /* Размер шрифта */
+    -fx-padding: 10; /* Отступы внутри кнопки */
+}
+
+.cell-button:hover {
+    -fx-background-color: #1A2535; /* Цвет фона при наведении */
+}
+
+.cell-button:pressed, .normal-button:hover, .dialog .button:hover, .alert .button:hover {
+    -fx-background-color: #0F1722; /* Цвет фона при нажатии */
+}
+
+/* Обычные кнопки */
+.normal-button, .dialog .button, .alert .button {
+    -fx-background-color: #1B2838; /* Цвет фона кнопок */
+    -fx-text-fill: #D1D5DB; /* Цвет текста кнопок */
+    -fx-border-color: #D1D5DB; /* Цвет границы кнопок */
+    -fx-border-radius: 5; /* Закругление углов */
+    -fx-background-radius: 5; /* Закругление фона */
+    -fx-padding: 10 20; /* Отступы внутри кнопки */
+    -fx-effect: null; /* Убираем тени */
+}
+
+.normal-button:hover, .dialog .button:hover, .alert .button:hover{
+    -fx-background-color: #121C28;
+}
+
+.normal-button:pressed, .dialog .button:pressed, .alert .button:pressed{
+    -fx-background-color: #0F1722;
+}
+
+/* Информационные окна */
+.alert {
+    -fx-background-color: #1B2838; /* Цвет фона */
+    -fx-text-fill: #D1D5DB; /* Цвет текста */
+    -fx-border-color: #D1D5DB; /* Цвет границы */
+}
+
+.alert .header-panel {
+    -fx-background-color: #1B2838; /* Цвет фона заголовка */
+    -fx-text-fill: #D1D5DB; /* Цвет текста заголовка */
+}
+
+.alert .content, .title-label, .info-label  {
+    -fx-text-fill: #D1D5DB; /* Цвет текста содержимого */
+}
+
+/* Диалоговые окна */
+.dialog {
+    -fx-min-width: 250; /* Минимальная ширина кнопок */
+    -fx-min-height: 130; /* Минимальная высота кнопок */
+    -fx-background-color: #1B2838; /* Цвет фона диалогового окна */
+    -fx-text-fill: #D1D5DB; /* Цвет текста */
+    -fx-border-color: #D1D5DB; /* Цвет границы */
+}
+
+.dialog .text {
+    -fx-text-fill: #D1D5DB;
+}
+
+.dialog .header-panel {
+    -fx-background-color: #1B2838; /* Цвет фона заголовка */
+    -fx-text-fill: #D1D5DB; /* Цвет текста заголовка */
+}
+
+.dialog .dialog-pane {
+    -fx-text-fill: #D1D5DB; /* Цвет текста содержимого */
+}
+
+.dialog .text-field {
+    -fx-background-color: #D1D5DB; /* Цвет фона текстового поля */
+    -fx-text-fill: #1B2838;  /* Цвет текста текстового поля */
+}

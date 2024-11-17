@@ -38,4 +38,9 @@ public class GameRoomController {
     public ResponseEntity<GameRoomDto> getRoomById(@PathVariable UUID roomId) {
         return ResponseEntity.of(gameService.findRoomById(roomId));
     }
+
+    @GetMapping("/users/{userId}/unfinished")
+    public ResponseEntity<List<UUID>> getUnfinishedGames(@PathVariable UUID userId) {
+        return ResponseEntity.of(gameService.findUnfinishedGames(userId));
+    }
 }
